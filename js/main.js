@@ -11,3 +11,10 @@ bgImage.onload = function () {
 	ctx.drawImage(bgImage, 0, 0);
 };
 bgImage.src = "images/canvas_background.png";
+
+// Hero image
+var heroImage = new Image();
+heroImage.onload = function () {
+	ctx.drawImage(heroImage, 474, 287);
+};
+heroImage.src = "images/hero.png";
