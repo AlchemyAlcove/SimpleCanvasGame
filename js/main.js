@@ -28,25 +28,25 @@ monster.y = -100;
 monster.xDirection = monster.speed;
 monster.yDirection = monster.speed;
 
-var pokemon_dimensions = new Array(
-	new Array(27, 32),
-	new Array(27, 32),
-	new Array(29, 32),
-	new Array(27, 32),
-	new Array(21, 32),
-	new Array(32, 24),
-	new Array(31, 32),
-	new Array(32, 30),
-	new Array(30, 32),
-	new Array(27, 32),
-	new Array(26, 32),
-	new Array(28, 32),
-	new Array(30, 32),
-	new Array(32, 24),
-	new Array(32, 30),
-	new Array(24, 32),
-	new Array(32, 26),
-	new Array(18, 32)
+var pokemon = new Array(
+	{count: 0, dimensions: new Array(27, 32)},
+	{count: 0, dimensions: new Array(27, 32)},
+	{count: 0, dimensions: new Array(29, 32)},
+	{count: 0, dimensions: new Array(27, 32)},
+	{count: 0, dimensions: new Array(21, 32)},
+	{count: 0, dimensions: new Array(32, 24)},
+	{count: 0, dimensions: new Array(31, 32)},
+	{count: 0, dimensions: new Array(32, 30)},
+	{count: 0, dimensions: new Array(30, 32)},
+	{count: 0, dimensions: new Array(27, 32)},
+	{count: 0, dimensions: new Array(26, 32)},
+	{count: 0, dimensions: new Array(28, 32)},
+	{count: 0, dimensions: new Array(30, 32)},
+	{count: 0, dimensions: new Array(32, 24)},
+	{count: 0, dimensions: new Array(32, 30)},
+	{count: 0, dimensions: new Array(24, 32)},
+	{count: 0, dimensions: new Array(32, 26)},
+	{count: 0, dimensions: new Array(18, 32)}
 );
 
 var gates = new Array(
@@ -55,8 +55,6 @@ var gates = new Array(
 	new Array(canvas.width / 2, canvas.height),
 	new Array(0, canvas.height / 2)
 );
-
-var pokemonCaught = 0;
 
 var keysDown = {};
 
@@ -87,19 +85,38 @@ var moveHero = function (modifier) {
 
 var catchPokemon = function() {
 	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
-		++pokemonCaught;
+		++pokemon[monster.id].count;
 		spawnMonster();
 	}
 };
 
 var spawnMonster = function() {
-	pokemon = Math.floor(Math.random() * 18) + 1;
-	monsterImage.src = "images/pokemon/"+pokemon+".png";
-	monster.width = pokemon_dimensions[pokemon - 1][0];
-	monster.height = pokemon_dimensions[pokemon - 1][1];
+	random = Math.floor(Math.random() * 18);
+	monsterImage.src = "images/pokemon/"+(random + 1)+".png";
+	monster.width = pokemon[random].dimensions[0];
+	monster.height = pokemon[random].dimensions[1];
 	gate = Math.floor(Math.random() * 4) + 1;
+	monster.id = random;
 	monster.x = gates[gate - 1][0];
 	monster.y = gates[gate - 1][1];
+};
+
+var pokemonCaughtCount = function() {
+	count = 0;
+	for(var i = 0; i < pokemon.length; i++) {
+		count += pokemon[i].count;
+	}
+	return count;
+};
+
+var pokemonTypesCount = function() {
+	count = 0;
+	for(var i = 0; i < pokemon.length; i++) {
+		if(pokemon[i].count > 0) {
+			++count;
+		}
+	}
+	return count;
 };
 
 var moveMonster = function (modifier) {
@@ -133,7 +150,8 @@ var render = function () {
 	ctx.drawImage(bgImage, 0, 0);
 	ctx.drawImage(monsterImage, monster.x, monster.y);
 	ctx.drawImage(heroImage, hero.x, hero.y);
-	$('#pokemon_caught').html(pokemonCaught);
+	$('#pokemon_caught').html(pokemonCaughtCount());
+	$('#pokemon_types').html(pokemonTypesCount());
 };
 
 var main = function () {
