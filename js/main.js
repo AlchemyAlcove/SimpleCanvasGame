@@ -29,6 +29,8 @@ monster.y = 100;
 monster.xDirection = monster.speed;
 monster.yDirection = monster.speed;
 
+var monstersSlain = 0;
+
 var keysDown = {};
 
 addEventListener("keydown", function (e) {
@@ -53,6 +55,15 @@ var moveHero = function (modifier) {
 		hero.x += hero.speed * modifier;
 	}
 	resetObjectLocation(hero);
+	slayMonster();
+};
+
+var slayMonster = function() {
+	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
+		++monstersSlain;
+		monster.x = 100;
+		monster.y = 100;
+	}
 };
 
 var moveMonster = function (modifier) {
@@ -80,13 +91,13 @@ var resetObjectLocation = function(object) {
 		object.x = canvas.width - object.width;
 	}
 }
-var drawn_hero = null;
 
 var render = function () {
 	ctx.clearRect (0, 0, canvas.width, canvas.height);
 	ctx.drawImage(bgImage, 0, 0);
 	ctx.drawImage(monsterImage, monster.x, monster.y);
 	ctx.drawImage(heroImage, hero.x, hero.y);
+	$('#monsters_slain').html(monstersSlain);
 };
 
 var main = function () {
