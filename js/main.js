@@ -24,10 +24,17 @@ var monster = {};
 monster.height = 32
 monster.width = 30;
 monster.speed = 50;
-monster.x = 100;
-monster.y = 100;
+monster.x = -100;
+monster.y = -100;
 monster.xDirection = monster.speed;
 monster.yDirection = monster.speed;
+
+var gates = new Array(
+		new Array(canvas.width / 2, 0),
+		new Array(canvas.width, canvas.height / 2),
+		new Array(canvas.width / 2, canvas.height),
+		new Array(0, canvas.height / 2)
+	);
 
 var monstersSlain = 0;
 
@@ -61,9 +68,14 @@ var moveHero = function (modifier) {
 var slayMonster = function() {
 	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
 		++monstersSlain;
-		monster.x = 100;
-		monster.y = 100;
+		spawnMonster();
 	}
+};
+
+var spawnMonster = function() {
+	gate = Math.floor(Math.random() * 4) + 1;
+	monster.x = gates[gate - 1][0];
+	monster.y = gates[gate - 1][1];
 };
 
 var moveMonster = function (modifier) {
@@ -112,5 +124,6 @@ var main = function () {
 };
 
 var then = Date.now();
+spawnMonster();
 setInterval(main, 1);
 setInterval(updateMonsterDirection, 1750);
