@@ -18,6 +18,8 @@ hero.width = 32;
 hero.speed = 250;
 hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
+hero.dead = false;
+hero.hp = 25;
 
 var monster = {};
 monster.width = 30;
@@ -67,24 +69,26 @@ addEventListener("keyup", function (e) {
 }, false);
 
 var moveHero = function (modifier) {
-	if(38 in keysDown) { // Player holding up
-		hero.y -= hero.speed * modifier;
+	if(hero.dead == false) {
+		if(38 in keysDown) { // Player holding up
+			hero.y -= hero.speed * modifier;
+		}
+		if(40 in keysDown) { // Player holding down
+			hero.y += hero.speed * modifier;
+		}
+		if(37 in keysDown) { // Player holding left
+			hero.x -= hero.speed * modifier;
+		}
+		if(39 in keysDown) { // Player holding right
+			hero.x += hero.speed * modifier;
+		}
+		resetObjectLocation(hero);
+		catchPokemon();
 	}
-	if(40 in keysDown) { // Player holding down
-		hero.y += hero.speed * modifier;
-	}
-	if(37 in keysDown) { // Player holding left
-		hero.x -= hero.speed * modifier;
-	}
-	if(39 in keysDown) { // Player holding right
-		hero.x += hero.speed * modifier;
-	}
-	resetObjectLocation(hero);
-	catchPokemon();
 };
 
 var catchPokemon = function() {
-	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
+	if(isTouchingMonster()) {
 		++pokemon[monster.id].count;
 		spawnMonster();
 	}
@@ -125,10 +129,43 @@ var moveMonster = function (modifier) {
 	resetObjectLocation(monster);
 };
 
+var updateMonsterAI = function() {
+	if(hero.dead == false) {
+		updateMonsterDirection();
+		monsterAttack();
+	}
+};
+
 var updateMonsterDirection = function () {
 	monster.xDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
 	monster.yDirection= ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
 };
+
+var monsterAttack = function() {
+	if(isTouchingMonster()) {
+		hero.hp -= 5;
+	}
+	checkDead();
+};
+
+var isTouchingMonster = function() {
+	ret = false;
+	if((hero.x <= (monster.x + monster.width)) && (monster.x <= (hero.x + monster.width)) && (hero.y <= (monster.y + monster.height)) && (monster.y <= (hero.y + monster.height))) {
+		ret = true;
+	}
+	return ret;
+}
+
+var checkDead = function() {
+	if(hero.hp <= 0) {
+		hero.hp = 0;
+		hero.dead = true;
+		$('#hit_points').html(hero.hp);
+		if(window.confirm('You Died! Try again?')) {
+			location.reload();
+		}
+	}
+}
 
 var resetObjectLocation = function(object) {
 	if(object.y < 0) {
@@ -152,20 +189,23 @@ var render = function () {
 	ctx.drawImage(heroImage, hero.x, hero.y);
 	$('#pokemon_caught').html(pokemonCaughtCount());
 	$('#pokemon_types').html(pokemonTypesCount());
+	$('#hit_points').html(hero.hp);
 };
 
 var main = function () {
-	var now = Date.now();
-	var delta = now - then;
+	if(hero.dead == false) {
+		var now = Date.now();
+		var delta = now - then;
 
-	moveHero(delta / 1000);
-	moveMonster(delta / 1000);
-	render();
+		moveHero(delta / 1000);
+		moveMonster(delta / 1000);
+		render();
 
-	then = now;
+		then = now;
+	}
 };
 
 var then = Date.now();
 spawnMonster();
 setInterval(main, 1);
-setInterval(updateMonsterDirection, 1750);
+setInterval(updateMonsterAI, 1750);
