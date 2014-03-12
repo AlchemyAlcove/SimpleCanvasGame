@@ -11,7 +11,6 @@ var heroImage = new Image();
 heroImage.src = "images/hero.png";
 
 var monsterImage = new Image();
-monsterImage.src = "images/monster.png";
 
 var hero = {};
 hero.height = 32;
@@ -21,22 +20,43 @@ hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
 
 var monster = {};
-monster.height = 32
 monster.width = 30;
+monster.height = 32
 monster.speed = 50;
 monster.x = -100;
 monster.y = -100;
 monster.xDirection = monster.speed;
 monster.yDirection = monster.speed;
 
-var gates = new Array(
-		new Array(canvas.width / 2, 0),
-		new Array(canvas.width, canvas.height / 2),
-		new Array(canvas.width / 2, canvas.height),
-		new Array(0, canvas.height / 2)
-	);
+var pokemon_dimensions = new Array(
+	new Array(27, 32),
+	new Array(27, 32),
+	new Array(29, 32),
+	new Array(27, 32),
+	new Array(21, 32),
+	new Array(32, 24),
+	new Array(31, 32),
+	new Array(32, 30),
+	new Array(30, 32),
+	new Array(27, 32),
+	new Array(26, 32),
+	new Array(28, 32),
+	new Array(30, 32),
+	new Array(32, 24),
+	new Array(32, 30),
+	new Array(24, 32),
+	new Array(32, 26),
+	new Array(18, 32)
+);
 
-var monstersSlain = 0;
+var gates = new Array(
+	new Array(canvas.width / 2, 0),
+	new Array(canvas.width, canvas.height / 2),
+	new Array(canvas.width / 2, canvas.height),
+	new Array(0, canvas.height / 2)
+);
+
+var pokemonCaught = 0;
 
 var keysDown = {};
 
@@ -62,17 +82,21 @@ var moveHero = function (modifier) {
 		hero.x += hero.speed * modifier;
 	}
 	resetObjectLocation(hero);
-	slayMonster();
+	catchPokemon();
 };
 
-var slayMonster = function() {
+var catchPokemon = function() {
 	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
-		++monstersSlain;
+		++pokemonCaught;
 		spawnMonster();
 	}
 };
 
 var spawnMonster = function() {
+	pokemon = Math.floor(Math.random() * 18) + 1;
+	monsterImage.src = "images/pokemon/"+pokemon+".png";
+	monster.width = pokemon_dimensions[pokemon - 1][0];
+	monster.height = pokemon_dimensions[pokemon - 1][1];
 	gate = Math.floor(Math.random() * 4) + 1;
 	monster.x = gates[gate - 1][0];
 	monster.y = gates[gate - 1][1];
@@ -109,7 +133,7 @@ var render = function () {
 	ctx.drawImage(bgImage, 0, 0);
 	ctx.drawImage(monsterImage, monster.x, monster.y);
 	ctx.drawImage(heroImage, hero.x, hero.y);
-	$('#monsters_slain').html(monstersSlain);
+	$('#pokemon_caught').html(pokemonCaught);
 };
 
 var main = function () {
