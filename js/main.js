@@ -53,10 +53,10 @@ var pokemon = new Array(
 );
 
 var gates = new Array(
-	new Array(canvas.width / 2, 0),
-	new Array(canvas.width, canvas.height / 2),
-	new Array(canvas.width / 2, canvas.height),
-	new Array(0, canvas.height / 2)
+	{x: canvas.width / 2, y: 0},
+	{x: canvas.width, y: canvas.height / 2},
+	{x: canvas.width / 2, y: canvas.height},
+	{x: 0, y: canvas.height / 2}
 );
 
 var keysDown = {};
@@ -92,7 +92,7 @@ var moveHero = function() {
 };
 
 var catchPokemon = function() {
-	if(isTouchingMonster()) {
+	if(isTouching(hero, monster)) {
 		if(32 in keysDown) { // Player holding space bar
 			if(hero.pokeballs > 0) {
 				++pokemon[monster.id].count;
@@ -113,8 +113,8 @@ var spawnMonster = function() {
 	monster.height = pokemon[random].dimensions[1];
 	gate = Math.floor(Math.random() * 4) + 1;
 	monster.id = random;
-	monster.x = gates[gate - 1][0];
-	monster.y = gates[gate - 1][1];
+	monster.x = gates[gate - 1].x;
+	monster.y = gates[gate - 1].y;
 };
 
 var pokemonCaughtCount = function() {
@@ -138,7 +138,25 @@ var pokemonTypesCount = function() {
 var moveMonster = function () {
 	monster.x += monster.xDirection;
 	monster.y += monster.yDirection;
+	monsterEscape();
 	resetObjectLocation(monster);
+
+};
+
+var monsterEscape = function() {
+	if(monsterAtGate()) {
+		spawnMonster();
+	}
+};
+
+var monsterAtGate = function() {
+	var ret = false;
+	if(isTouching(gates[0], monster) || isTouching(gates[1], monster) || isTouching(gates[2], monster) || isTouching(gates[3], monster)) {
+		if(Math.random() > 0.985) {
+			ret = true;
+		}
+	}
+	return ret;
 };
 
 var updateMonsterAI = function() {
@@ -154,16 +172,16 @@ var updateMonsterDirection = function () {
 };
 
 var monsterAttack = function() {
-	if(isTouchingMonster()) {
+	if(isTouching(hero, monster)) {
 		hero.hp -= 5;
 		sendMessage("Pokemon used `Tackle`!");
 	}
 	checkDead();
 };
 
-var isTouchingMonster = function() {
-	ret = false;
-	if((hero.x <= (monster.x + monster.width)) && (monster.x <= (hero.x + monster.width)) && (hero.y <= (monster.y + monster.height)) && (monster.y <= (hero.y + monster.height))) {
+var isTouching = function(a, b) {
+	var ret = false;
+	if((a.x <= (b.x + b.width)) && (b.x <= (a.x + b.width)) && (a.y <= (b.y + b.height)) && (b.y <= (a.y + b.height))) {
 		ret = true;
 	}
 	return ret;
@@ -217,4 +235,4 @@ var main = function () {
 
 spawnMonster();
 setInterval(main, 1);
-setInterval(updateMonsterAI, 1750);
+setInterval(updateMonsterAI, 1250);
