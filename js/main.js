@@ -10,39 +10,6 @@ bgImage.src = "images/canvas_background.png";
 var heroImage = new Image();
 heroImage.src = "images/hero.png";
 
-var monsterImage = new Image();
-
-var pokeballImage = new Image();
-pokeballImage.src = "images/pokeball.png";
-
-var explosionImage = new Image();
-explosionImage.src = "images/explosion.png";
-
-var hero = {};
-hero.height = 32;
-hero.width = 32;
-hero.speed = 1.5;
-hero.x = (canvas.width / 2) - (hero.width / 2);
-hero.y = (canvas.height / 2) - (hero.height / 2);
-hero.dead = false;
-hero.hp = 25;
-hero.pokeballs = 5;
-
-var monster = {};
-monster.width = 30;
-monster.height = 32
-monster.speed = 2;
-monster.x = -100;
-monster.y = -100;
-monster.xDirection = monster.speed;
-monster.yDirection = monster.speed;
-
-var pokeball = {};
-pokeball.x = -100;
-pokeball.y = -100;
-pokeball.width = 30;
-pokeball.height = 30;
-
 var pokemon = new Array(
 	{count: 0, dimensions: new Array(27, 32)},
 	{count: 0, dimensions: new Array(27, 32)},
@@ -63,6 +30,37 @@ var pokemon = new Array(
 	{count: 0, dimensions: new Array(32, 26)},
 	{count: 0, dimensions: new Array(18, 32)}
 );
+
+var monsterImages = [];
+for(var i = 0; i < pokemon.length; i++) {
+	monsterImages[i] = new Image();
+	monsterImages[i].src = "images/pokemon/" + (i + 1) + ".png";
+}
+
+var pokeballImage = new Image();
+pokeballImage.src = "images/pokeball.png";
+
+var explosionImage = new Image();
+explosionImage.src = "images/explosion.png";
+
+var hero = {};
+hero.height = 32;
+hero.width = 32;
+hero.speed = 1.5;
+hero.x = (canvas.width / 2) - (hero.width / 2);
+hero.y = (canvas.height / 2) - (hero.height / 2);
+hero.dead = false;
+hero.hp = 25;
+hero.pokeballs = 5;
+
+var monsters = [];
+
+var pokeball = {};
+pokeball.x = -100;
+pokeball.y = -100;
+pokeball.width = 30;
+pokeball.height = 30;
+
 
 var gates = new Array(
 	{x: canvas.width / 2, y: 0},
@@ -104,15 +102,17 @@ var moveHero = function() {
 };
 
 var catchPokemon = function() {
-	if(isTouching(hero, monster)) {
-		if(32 in keysDown) { // Player holding space bar
-			if(hero.pokeballs > 0) {
-				++pokemon[monster.id].count;
-				--hero.pokeballs;
-				sendMessage("You caught a Pokemon!");
-				spawnMonster();
-			} else {
-				sendMessage("You don't have a Pokeball!");
+	for(var i = 0; i < monsters.length; i++) {
+		if(isTouching(hero, monsters[i])) {
+			if(32 in keysDown) { // Player holding space bar
+				if(hero.pokeballs > 0) {
+					++pokemon[monsters[i].id].count;
+					--hero.pokeballs;
+					removeMonster(i);
+					sendMessage("You caught a Pokemon!");
+				} else {
+					sendMessage("You don't have a Pokeball!");
+				}
 			}
 		}
 	}
@@ -138,14 +138,20 @@ var catchPokeball = function() {
 };
 
 var spawnMonster = function() {
-	random = Math.floor(Math.random() * 18);
-	monsterImage.src = "images/pokemon/"+(random + 1)+".png";
-	monster.width = pokemon[random].dimensions[0];
-	monster.height = pokemon[random].dimensions[1];
-	gate = Math.floor(Math.random() * 4) + 1;
-	monster.id = random;
-	monster.x = gates[gate - 1].x;
-	monster.y = gates[gate - 1].y;
+	if(monsters.length < 5) {
+		random = Math.floor(Math.random() * 18);
+		gate = Math.floor(Math.random() * 4) + 1;
+		monsters.push({
+			width: pokemon[random].dimensions[0],
+			height: pokemon[random].dimensions[1],
+			speed: 2,
+			id: random,
+			x: gates[gate - 1].x,
+			y: gates[gate - 1].y,
+			xDirection: 2,
+			yDirection: 2
+		});
+	}
 };
 
 var pokemonCaughtCount = function() {
@@ -167,20 +173,26 @@ var pokemonTypesCount = function() {
 };
 
 var moveMonster = function () {
-	monster.x += monster.xDirection;
-	monster.y += monster.yDirection;
-	monsterEscape();
-	resetObjectLocation(monster);
-
-};
-
-var monsterEscape = function() {
-	if(monsterAtGate()) {
-		spawnMonster();
+	for(var i = 0; i < monsters.length; i++) {
+		monsters[i].x += monsters[i].xDirection;
+		monsters[i].y += monsters[i].yDirection;
+		monsterEscape(monsters[i], i);
+		resetObjectLocation(monsters[i]);
 	}
 };
 
-var monsterAtGate = function() {
+var monsterEscape = function(monster, index) {
+	if(monsterAtGate(monster)) {
+		removeMonster(index);
+	}
+};
+
+var removeMonster = function(index) {
+	monsters.splice(index, 1);
+	monsterImages.splice(index, 1);
+};
+
+var monsterAtGate = function(monster) {
 	var ret = false;
 	if(isTouching(gates[0], monster) || isTouching(gates[1], monster) || isTouching(gates[2], monster) || isTouching(gates[3], monster)) {
 		if(Math.random() > 0.985) {
@@ -198,15 +210,19 @@ var updateMonsterAI = function() {
 };
 
 var updateMonsterDirection = function () {
-	monster.xDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
-	monster.yDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
+	for(var i = 0; i < monsters.length; i++) {
+		monsters[i].xDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monsters[i].speed;
+		monsters[i].yDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monsters[i].speed;
+	}
 };
 
 var monsterAttack = function() {
-	if(isTouching(hero, monster)) {
-		hero.hp -= 5;
-		sendMessage("Pokemon used `Tackle`!");
-		ctx.drawImage(explosionImage, monster.x, monster.y);
+	for(var i = 0; i < monsters.length; i++) {
+		if(isTouching(hero, monsters[i])) {
+			hero.hp -= 5;
+			sendMessage("Pokemon used `Tackle`!");
+			ctx.drawImage(explosionImage, monsters[i].x, monsters[i].y);
+		}
 	}
 	checkDead();
 };
@@ -256,7 +272,9 @@ var resetObjectLocation = function(object) {
 var render = function () {
 	ctx.clearRect (0, 0, canvas.width, canvas.height);
 	ctx.drawImage(bgImage, 0, 0);
-	ctx.drawImage(monsterImage, monster.x, monster.y);
+	for(var i = 0; i < monsters.length; i++) {
+		ctx.drawImage(monsterImages[i], monsters[i].x, monsters[i].y);
+	}
 	ctx.drawImage(pokeballImage, pokeball.x, pokeball.y);
 	ctx.drawImage(heroImage, hero.x, hero.y);
 	$('#pokemon_caught').html(pokemonCaughtCount());
@@ -279,3 +297,4 @@ spawnMonster();
 setInterval(main, 1);
 setInterval(updateMonsterAI, 1250);
 setInterval(generatePokeball, 2500);
+setInterval(spawnMonster, 4000);
