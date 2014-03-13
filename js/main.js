@@ -15,7 +15,7 @@ var monsterImage = new Image();
 var hero = {};
 hero.height = 32;
 hero.width = 32;
-hero.speed = 250;
+hero.speed = 1;
 hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
 hero.dead = false;
@@ -25,7 +25,7 @@ hero.pokeballs = 5;
 var monster = {};
 monster.width = 30;
 monster.height = 32
-monster.speed = 50;
+monster.speed = 4;
 monster.x = -100;
 monster.y = -100;
 monster.xDirection = monster.speed;
@@ -73,19 +73,19 @@ var sendMessage = function(message) {
 	$('#messages').html(message);
 };
 
-var moveHero = function(modifier) {
+var moveHero = function() {
 	if(hero.dead == false) {
 		if((38 in keysDown) || (87 in keysDown)) { // Player holding up
-			hero.y -= hero.speed * modifier;
+			hero.y -= hero.speed;
 		}
 		if((40 in keysDown) || (83 in keysDown)) { // Player holding down
-			hero.y += hero.speed * modifier;
+			hero.y += hero.speed;
 		}
 		if((37 in keysDown) || (65 in keysDown)) { // Player holding left
-			hero.x -= hero.speed * modifier;
+			hero.x -= hero.speed;
 		}
 		if((39 in keysDown) || (68 in keysDown)) { // Player holding right
-			hero.x += hero.speed * modifier;
+			hero.x += hero.speed;
 		}
 		resetObjectLocation(hero);
 	}
@@ -135,9 +135,9 @@ var pokemonTypesCount = function() {
 	return count;
 };
 
-var moveMonster = function (modifier) {
-	monster.x += monster.xDirection * modifier;
-	monster.y += monster.yDirection * modifier;
+var moveMonster = function () {
+	monster.x += monster.xDirection;
+	monster.y += monster.yDirection;
 	resetObjectLocation(monster);
 };
 
@@ -208,19 +208,13 @@ var render = function () {
 
 var main = function () {
 	if(hero.dead == false) {
-		var now = Date.now();
-		var delta = now - then;
-
-		moveHero(delta / 1000);
+		moveHero();
 		catchPokemon();
-		moveMonster(delta / 1000);
+		moveMonster();
 		render();
-
-		then = now;
 	}
 };
 
-var then = Date.now();
 spawnMonster();
 setInterval(main, 1);
 setInterval(updateMonsterAI, 1750);
