@@ -12,10 +12,16 @@ heroImage.src = "images/hero.png";
 
 var monsterImage = new Image();
 
+var pokeballImage = new Image();
+pokeballImage.src = "images/pokeball.png";
+
+var explosionImage = new Image();
+explosionImage.src = "images/explosion.png";
+
 var hero = {};
 hero.height = 32;
 hero.width = 32;
-hero.speed = 1;
+hero.speed = 1.5;
 hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
 hero.dead = false;
@@ -30,6 +36,12 @@ monster.x = -100;
 monster.y = -100;
 monster.xDirection = monster.speed;
 monster.yDirection = monster.speed;
+
+var pokeball = {};
+pokeball.x = -100;
+pokeball.y = -100;
+pokeball.width = 30;
+pokeball.height = 30;
 
 var pokemon = new Array(
 	{count: 0, dimensions: new Array(27, 32)},
@@ -106,6 +118,25 @@ var catchPokemon = function() {
 	}
 };
 
+var catchPokeball = function() {
+	if(isTouching(pokeball, hero)) {
+		if(16 in keysDown) { // Player holding shift
+			if(Math.random() > 0.6) {
+				hero.hp = 0;
+				ctx.drawImage(explosionImage, pokeball.x, pokeball.y);
+				pokeball.x = -100;
+				pokeball.y = -100;
+				sendMessage('Voltorb exploded!');
+				checkDead();
+			} else {
+				++hero.pokeballs;
+				pokeball.x = -100;
+				pokeball.y = -100;
+			}
+		}
+	}
+};
+
 var spawnMonster = function() {
 	random = Math.floor(Math.random() * 18);
 	monsterImage.src = "images/pokemon/"+(random + 1)+".png";
@@ -168,7 +199,7 @@ var updateMonsterAI = function() {
 
 var updateMonsterDirection = function () {
 	monster.xDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
-	monster.yDirection= ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
+	monster.yDirection = ((Math.random() < 0.5)? -1 : 1) * Math.random() * monster.speed;
 };
 
 var monsterAttack = function() {
@@ -198,6 +229,14 @@ var checkDead = function() {
 	}
 }
 
+var generatePokeball = function() {
+	if(hero.dead == false) {
+		pokeball.x = Math.floor(Math.random() * canvas.width);
+		pokeball.y = Math.floor(Math.random() * canvas.height);
+		resetObjectLocation(pokeball);
+	}
+}
+
 var resetObjectLocation = function(object) {
 	if(object.y < 0) {
 		object.y = 0;
@@ -217,6 +256,7 @@ var render = function () {
 	ctx.clearRect (0, 0, canvas.width, canvas.height);
 	ctx.drawImage(bgImage, 0, 0);
 	ctx.drawImage(monsterImage, monster.x, monster.y);
+	ctx.drawImage(pokeballImage, pokeball.x, pokeball.y);
 	ctx.drawImage(heroImage, hero.x, hero.y);
 	$('#pokemon_caught').html(pokemonCaughtCount());
 	$('#pokemon_types').html(pokemonTypesCount());
@@ -228,6 +268,7 @@ var main = function () {
 	if(hero.dead == false) {
 		moveHero();
 		catchPokemon();
+		catchPokeball();
 		moveMonster();
 		render();
 	}
@@ -236,3 +277,4 @@ var main = function () {
 spawnMonster();
 setInterval(main, 1);
 setInterval(updateMonsterAI, 1250);
+setInterval(generatePokeball, 2500);
