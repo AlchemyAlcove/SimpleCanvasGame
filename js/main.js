@@ -20,6 +20,7 @@ hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
 hero.dead = false;
 hero.hp = 25;
+hero.pokeballs = 5;
 
 var monster = {};
 monster.width = 30;
@@ -68,29 +69,40 @@ addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 }, false);
 
-var moveHero = function (modifier) {
+var sendMessage = function(message) {
+	$('#messages').html(message);
+};
+
+var moveHero = function(modifier) {
 	if(hero.dead == false) {
-		if(38 in keysDown) { // Player holding up
+		if((38 in keysDown) || (87 in keysDown)) { // Player holding up
 			hero.y -= hero.speed * modifier;
 		}
-		if(40 in keysDown) { // Player holding down
+		if((40 in keysDown) || (83 in keysDown)) { // Player holding down
 			hero.y += hero.speed * modifier;
 		}
-		if(37 in keysDown) { // Player holding left
+		if((37 in keysDown) || (65 in keysDown)) { // Player holding left
 			hero.x -= hero.speed * modifier;
 		}
-		if(39 in keysDown) { // Player holding right
+		if((39 in keysDown) || (68 in keysDown)) { // Player holding right
 			hero.x += hero.speed * modifier;
 		}
 		resetObjectLocation(hero);
-		catchPokemon();
 	}
 };
 
 var catchPokemon = function() {
 	if(isTouchingMonster()) {
-		++pokemon[monster.id].count;
-		spawnMonster();
+		if(32 in keysDown) { // Player holding space bar
+			if(hero.pokeballs > 0) {
+				++pokemon[monster.id].count;
+				--hero.pokeballs;
+				sendMessage("You caught a Pokemon!");
+				spawnMonster();
+			} else {
+				sendMessage("You don't have a Pokeball!");
+			}
+		}
 	}
 };
 
@@ -144,6 +156,7 @@ var updateMonsterDirection = function () {
 var monsterAttack = function() {
 	if(isTouchingMonster()) {
 		hero.hp -= 5;
+		sendMessage("Pokemon used `Tackle`!");
 	}
 	checkDead();
 };
@@ -190,6 +203,7 @@ var render = function () {
 	$('#pokemon_caught').html(pokemonCaughtCount());
 	$('#pokemon_types').html(pokemonTypesCount());
 	$('#hit_points').html(hero.hp);
+	$('#pokeballs').html(hero.pokeballs);
 };
 
 var main = function () {
@@ -198,6 +212,7 @@ var main = function () {
 		var delta = now - then;
 
 		moveHero(delta / 1000);
+		catchPokemon();
 		moveMonster(delta / 1000);
 		render();
 

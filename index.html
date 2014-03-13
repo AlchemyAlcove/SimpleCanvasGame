@@ -8,13 +8,19 @@
 			body { background-image: url(images/background.jpg); }
 			#header { width: 979px; }
 			.stats_header { color: white; font-weight: bold; font-size: 18px; margin: 10px 15px; }
-			#hit_points_header { float: right; }
+			#right_header { float: right; }
+			#messages { height: 30px; line-height: 30px; width: 929px; background-color: #222; color: red; font-size: 20px; margin: 10px 25px; padding-left: 10px; }
 		</style>
 	</head>
 	<body>
 		<div id="header">
-			<div id="hit_points_header" class="stats_header">
-				HP: <span id="hit_points">0</span>
+			<div id="right_header">
+				<div id="hit_points_header" class="stats_header">
+					HP: <span id="hit_points">0</span>
+				</div>
+				<div class="stats_header">
+					Pokeballs: <span id="pokeballs">0</span>
+				</div>
 			</div>
 			<div id="pokemon_caught_header" class="stats_header">
 				Pokemon Caught: <span id="pokemon_caught">0</span>
@@ -23,6 +29,7 @@
 				Pokemon Types: <span id="pokemon_types">0</span>/18
 			</div>
 		</div>
+		<div id="messages">Press spacebar to use Pokeball!</div>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="js/main.js"></script>
 	</body>
