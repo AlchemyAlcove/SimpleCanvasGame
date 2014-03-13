@@ -31,7 +31,7 @@ hero.pokeballs = 5;
 var monster = {};
 monster.width = 30;
 monster.height = 32
-monster.speed = 4;
+monster.speed = 2;
 monster.x = -100;
 monster.y = -100;
 monster.xDirection = monster.speed;
@@ -121,7 +121,7 @@ var catchPokemon = function() {
 var catchPokeball = function() {
 	if(isTouching(pokeball, hero)) {
 		if(16 in keysDown) { // Player holding shift
-			if(Math.random() > 0.6) {
+			if(Math.random() > 0.75) {
 				hero.hp = 0;
 				ctx.drawImage(explosionImage, pokeball.x, pokeball.y);
 				pokeball.x = -100;
@@ -206,6 +206,7 @@ var monsterAttack = function() {
 	if(isTouching(hero, monster)) {
 		hero.hp -= 5;
 		sendMessage("Pokemon used `Tackle`!");
+		ctx.drawImage(explosionImage, monster.x, monster.y);
 	}
 	checkDead();
 };
