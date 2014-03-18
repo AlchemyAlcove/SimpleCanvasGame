@@ -19,6 +19,7 @@ hero.width = 32;
 hero.speed = 250;
 hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
+hero.monstersSlain = 0;
 
 var monster = {};
 monster.height = 32
@@ -28,8 +29,6 @@ monster.x = 100;
 monster.y = 100;
 monster.xDirection = monster.speed;
 monster.yDirection = monster.speed;
-
-var monstersSlain = 0;
 
 var keysDown = {};
 
@@ -60,7 +59,7 @@ var moveHero = function (modifier) {
 
 var slayMonster = function() {
 	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
-		++monstersSlain;
+		++hero.monstersSlain;
 		monster.x = 100;
 		monster.y = 100;
 	}
