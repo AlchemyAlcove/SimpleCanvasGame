@@ -18,6 +18,8 @@ hero.width = 32;
 hero.speed = 250;
 hero.x = (canvas.width / 2) - (hero.width / 2);
 hero.y = (canvas.height / 2) - (hero.height / 2);
+hero.monstersSlain = 0;
+hero.pokemonCaught = 0;
 
 var monster = {};
 monster.width = 30;
@@ -56,8 +58,6 @@ var gates = new Array(
 	new Array(0, canvas.height / 2)
 );
 
-var pokemonCaught = 0;
-
 var keysDown = {};
 
 addEventListener("keydown", function (e) {
@@ -87,7 +87,7 @@ var moveHero = function (modifier) {
 
 var catchPokemon = function() {
 	if((hero.x <= (monster.x + 32)) && (monster.x <= (hero.x + 32)) && (hero.y <= (monster.y + 32)) && (monster.y <= (hero.y + 32))) {
-		++pokemonCaught;
+		++hero.pokemonCaught;
 		spawnMonster();
 	}
 };
@@ -133,7 +133,7 @@ var render = function () {
 	ctx.drawImage(bgImage, 0, 0);
 	ctx.drawImage(monsterImage, monster.x, monster.y);
 	ctx.drawImage(heroImage, hero.x, hero.y);
-	$('#pokemon_caught').html(pokemonCaught);
+	$('#pokemon_caught').html(hero.pokemonCaught);
 };
 
 var main = function () {
